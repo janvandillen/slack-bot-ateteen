@@ -32,6 +32,10 @@ build/
 ### VS Code ###
 .vscode/
 
+### configfiles ###
+*-dev.properties
+*-prod.properties
+
 # Compiled class file
 *.class
 
