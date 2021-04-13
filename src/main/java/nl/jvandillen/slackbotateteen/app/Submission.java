@@ -6,7 +6,10 @@ import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 import com.slack.api.bolt.response.Response;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.model.Conversation;
+import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
+import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.Game;
+import nl.jvandillen.slackbotateteen.model.NewBoardgameForm;
 import nl.jvandillen.slackbotateteen.model.NewGameForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,10 +23,23 @@ public class Submission {
     private NewGameForm newGameForm;
 
     @Autowired
+    private NewBoardgameForm newBoardgameForm;
+
+    @Autowired
+    private BoardgameDao boardgameDao;
+
+    @Autowired
     SlackActions slackActions;
 
     public void addSubmissions(App app) {
         app.viewSubmission(newGameForm.callbackID, this::createGameSubmission);
+        app.viewSubmission(newBoardgameForm.callbackID, this::createBoardgameSubmission);
+    }
+
+    private Response createBoardgameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) {
+        Boardgame boardgame = newBoardgameForm.retrieveGame(req);
+        boardgameDao.save(boardgame);
+        return ctx.ack();
     }
 
     private Response createGameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) throws SlackApiException, IOException {

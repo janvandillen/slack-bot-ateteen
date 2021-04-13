@@ -25,12 +25,22 @@ public class Command {
 
     public void addCommands(App app) {
         app.command(CREATE_GAME, this::createGame);
+        app.command(CREATE_BOARDGAME, this::createBoardGame);
     }
 
     private Response createGame(SlashCommandRequest req, SlashCommandContext ctx) throws SlackApiException, IOException {
         ViewsOpenResponse viewsOpenResponse = ctx.client().viewsOpen(r -> r
                 .triggerId(ctx.getTriggerId())
                 .view(modals.createGameModal())
+        );
+        if (viewsOpenResponse.isOk()) return ctx.ack();
+        else return Response.builder().statusCode(500).body(viewsOpenResponse.getError()).build();
+    }
+
+    private Response createBoardGame(SlashCommandRequest req, SlashCommandContext ctx) throws SlackApiException, IOException {
+        ViewsOpenResponse viewsOpenResponse = ctx.client().viewsOpen(r -> r
+                .triggerId(ctx.getTriggerId())
+                .view(modals.createBoardgameModal())
         );
         if (viewsOpenResponse.isOk()) return ctx.ack();
         else return Response.builder().statusCode(500).body(viewsOpenResponse.getError()).build();
