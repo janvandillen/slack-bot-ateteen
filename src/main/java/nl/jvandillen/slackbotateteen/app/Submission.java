@@ -7,6 +7,7 @@ import com.slack.api.bolt.response.Response;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.model.Conversation;
 import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
+import nl.jvandillen.slackbotateteen.app.dao.GameDao;
 import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.Game;
 import nl.jvandillen.slackbotateteen.model.NewBoardgameForm;
@@ -29,6 +30,9 @@ public class Submission {
     private BoardgameDao boardgameDao;
 
     @Autowired
+    private GameDao gameDao;
+
+    @Autowired
     SlackActions slackActions;
 
     public void addSubmissions(App app) {
@@ -43,7 +47,8 @@ public class Submission {
     }
 
     private Response createGameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) throws SlackApiException, IOException {
-        Game game = newGameForm.retrieveGame(req);
+        Game game = newGameForm.retrieveGame(ctx, req);
+        gameDao.save(game);
         Conversation channel = slackActions.CreateChannel(ctx, game.getName());
         slackActions.InviteToChannel(ctx, channel, game.getPlayers());
         return ctx.ack();

@@ -1,8 +1,6 @@
 package nl.jvandillen.slackbotateteen.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,14 +11,23 @@ public class Game {
     @Id
     private int id;
 
-    private final String boardgame;
+    @ManyToOne
+    private Boardgame boardgame;
     private String name;
     private User[] players;
+    private int[] scores;
+    private User[] winners;
+    private Boolean running;
 
-    public Game(String boardgame, String name, List<User> players) {
+    public Game() {
+    }
+
+    public Game(Boardgame boardgame, String name, List<User> playersList) {
         this.boardgame = boardgame;
         this.name = name;
-        this.players = (User[]) players.toArray();
+        this.players = new User[playersList.size()];
+        this.players = playersList.toArray(players);
+        this.running = true;
     }
 
     public String getName() {
@@ -29,5 +36,33 @@ public class Game {
 
     public List<User> getPlayers() {
         return Arrays.stream(players).toList();
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPlayers(User[] players) {
+        this.players = players;
+    }
+
+    public void setBoardgame(Boardgame boardgame) {
+        this.boardgame = boardgame;
+    }
+
+    public void setScores(int[] scores) {
+        //this.scores = scores;
+    }
+
+    public void setWinners(User[] winners) {
+        //this.winners = winners;
+    }
+
+    public void setRunning(Boolean running) {
+        this.running = running;
     }
 }

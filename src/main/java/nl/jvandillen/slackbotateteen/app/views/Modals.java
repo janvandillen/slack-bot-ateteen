@@ -2,6 +2,8 @@ package nl.jvandillen.slackbotateteen.app.views;
 
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.View;
+import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
+import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.NewBoardgameForm;
 import nl.jvandillen.slackbotateteen.model.NewGameForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +27,15 @@ public class Modals {
     private NewGameForm newGameForm;
     @Autowired
     private NewBoardgameForm newBoardgameForm;
+    @Autowired
+    private BoardgameDao boardgameDao;
 
     public View createGameModal() {
+
+        List<OptionObject> options = new ArrayList<>();
+        for (Boardgame b:boardgameDao.findAll()) {
+            options.add(option(plainText(b.name),String.valueOf(b.id)));
+        }
 
         return view(view -> view
                 .callbackId(newGameForm.callbackID)
@@ -40,8 +49,11 @@ public class Modals {
                         divider(),
                         input(input -> input
                                 .blockId(newGameForm.gameInputID)
-                                .element(plainTextInput(pti -> pti.actionId(newGameForm.gameInputActionID)))
-                                .label(plainText((pt -> pt.text("Game"))))
+                                .label(plainText("Game"))
+                                .element(staticSelect(ss -> ss
+                                        .actionId(newGameForm.gameInputActionID)
+                                        .options(options)
+                                ))
                         ),
                         input(input -> input
                                 .blockId(newGameForm.gameNameInputID)

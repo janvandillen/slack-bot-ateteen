@@ -4,6 +4,7 @@ import com.slack.api.bolt.context.Context;
 import com.slack.api.bolt.context.builtin.ViewSubmissionContext;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.response.conversations.ConversationsCreateResponse;
+import com.slack.api.methods.response.users.UsersInfoResponse;
 import com.slack.api.model.Conversation;
 import nl.jvandillen.slackbotateteen.model.Secrets;
 import nl.jvandillen.slackbotateteen.model.User;
@@ -40,4 +41,12 @@ public class SlackActions {
                 .users(userIDs)
         );
     }
+
+    public User getUserInfoSlack (Context ctx, String id) throws SlackApiException, IOException {
+        UsersInfoResponse result = ctx.client().usersInfo(r -> r
+                .token(secrets.getSLACK_BOT_TOKEN())
+                .user(id)
+        );
+        return new User(id,result.getUser().getRealName());
+    };
 }
