@@ -22,16 +22,18 @@ public class Game {
     private String channelID;
     public Date created;
     public Date closed;
+    public String url;
 
     public Game() {
     }
 
-    public Game(Boardgame boardgame, String name, List<User> playersList) {
+    public Game(Boardgame boardgame, String name, List<User> playersList, String url) {
         this.boardgame = boardgame;
         this.name = name;
         this.players = new User[playersList.size()];
         this.players = playersList.toArray(players);
         this.running = true;
+        this.url = url;
         setCreationDate();
     }
 
@@ -128,5 +130,12 @@ public class Game {
 
     public Date getClosed() {
         return closed;
+    }
+
+    public String getUrl() {
+        if (url == null) {
+            return "";
+        }
+        return url;
     }
 }

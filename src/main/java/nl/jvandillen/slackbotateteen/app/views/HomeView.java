@@ -43,7 +43,8 @@ public class HomeView {
         for (Game game: gameDao.findByRunningTrue() ) {
             String text = "*#" + game.getFullname() + "*\n" +
                     "created: " + game.getFormatedCreationDate() + "\n" +
-                    "players: " + game.getPlayersName();
+                    "players: " + game.getPlayersName() + "\n" +
+                    game.getUrl();
             blocks.add(section(sct -> sct
                     .text(markdownText(text))
                     .accessory(button(btn -> btn
@@ -64,7 +65,8 @@ public class HomeView {
                     "Created: " + game.getFormatedCreationDate() + "\n" +
                     "Closed: " + game.getFormatedClosingDate() + "\n" +
                     "Winners: " + game.getWinnersName() + "\n" +
-                    "Players: " + game.getPlayersNameWithScore();
+                    "Players: " + game.getPlayersNameWithScore() + "\n" +
+                    game.getUrl();
             blocks.add(section(sct -> sct
                     .text(markdownText(text))
             ));

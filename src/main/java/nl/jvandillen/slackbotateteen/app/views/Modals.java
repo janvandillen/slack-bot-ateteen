@@ -83,6 +83,14 @@ public class Modals {
                                         .actionId(newGameForm.playersInputActionID)
                                 ))
                                 .label(plainText((pt -> pt.text("Players"))))
+                        ),
+                        input(input -> input
+                                .blockId(newGameForm.gameURLInputID)
+                                .element(plainTextInput(pti -> pti
+                                        .actionId(newGameForm.gameURLInputActionID)
+                                        .placeholder(plainText("https://18xx.games"))
+                                ))
+                                .label(plainText("Link"))
                         )
                 ))
         );

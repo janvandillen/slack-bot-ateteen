@@ -34,16 +34,19 @@ public class NewGameForm {
     public final String gameNameInputActionID = "NA_game_name_val";
     public final String playersInputID = "players";
     public final String playersInputActionID = "NA_players_val";
-    
+    public final String gameURLInputID = "URL";
+    public final String gameURLInputActionID = "NA_URL_val";
+
     public Game retrieveGame(Context ctx, ViewSubmissionRequest req) throws SlackApiException, IOException {
         Map<String, Map<String, ViewState.Value>> stateValues = req.getPayload().getView().getState().getValues();
         Boardgame boardgame = boardgameDao.findById(Integer.parseInt(stateValues.get(gameInputID).get(gameInputActionID).getSelectedOption().getValue())).orElseThrow();
         String name = stateValues.get(gameNameInputID).get(gameNameInputActionID).getValue().toLowerCase(Locale.ROOT).replace(" ","_");
+        String url = stateValues.get(gameURLInputID).get(gameURLInputActionID).getValue();
         List<String> playerIDs = stateValues.get(playersInputID).get(playersInputActionID).getSelectedUsers();
         List<User> players = new ArrayList<>();
         for (String u: playerIDs) {
             players.add(userController.getUser(ctx,u));
         }
-        return new Game(boardgame, name, players);
+        return new Game(boardgame, name, players, url);
     }
 }
