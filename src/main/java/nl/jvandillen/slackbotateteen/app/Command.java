@@ -19,6 +19,7 @@ public class Command {
 
     private String CREATE_GAME;
     private String CREATE_BOARDGAME;
+    private String CLOSE_GAME;
 
     @Autowired
     private Modals modals;
@@ -26,6 +27,16 @@ public class Command {
     public void addCommands(App app) {
         app.command(CREATE_GAME, this::createGame);
         app.command(CREATE_BOARDGAME, this::createBoardGame);
+        app.command(CLOSE_GAME, this::closeGame);
+    }
+
+    private Response closeGame(SlashCommandRequest req, SlashCommandContext ctx) throws SlackApiException, IOException {
+        ViewsOpenResponse viewsOpenResponse = ctx.client().viewsOpen(r -> r
+                .triggerId(ctx.getTriggerId())
+                .view(modals.choseGame())
+        );
+        if (viewsOpenResponse.isOk()) return ctx.ack();
+        else return Response.builder().statusCode(500).body(viewsOpenResponse.getError()).build();
     }
 
     private Response createGame(SlashCommandRequest req, SlashCommandContext ctx) throws SlackApiException, IOException {
@@ -52,5 +63,9 @@ public class Command {
 
     public void setCREATE_BOARDGAME(String CREATE_BOARDGAME) {
         this.CREATE_BOARDGAME = CREATE_BOARDGAME;
+    }
+
+    public void setCLOSE_GAME(String CLOSE_GAME) {
+        this.CLOSE_GAME = CLOSE_GAME;
     }
 }

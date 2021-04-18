@@ -1,15 +1,22 @@
 package nl.jvandillen.slackbotateteen.app.views;
 
+import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.View;
 import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
+import nl.jvandillen.slackbotateteen.app.dao.GameDao;
 import nl.jvandillen.slackbotateteen.model.Boardgame;
-import nl.jvandillen.slackbotateteen.model.NewBoardgameForm;
-import nl.jvandillen.slackbotateteen.model.NewGameForm;
+import nl.jvandillen.slackbotateteen.model.Game;
+import nl.jvandillen.slackbotateteen.model.User;
+import nl.jvandillen.slackbotateteen.model.form.ChoseGameForm;
+import nl.jvandillen.slackbotateteen.model.form.CloseGameForm;
+import nl.jvandillen.slackbotateteen.model.form.NewBoardgameForm;
+import nl.jvandillen.slackbotateteen.model.form.NewGameForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.slack.api.model.block.Blocks.*;
@@ -28,7 +35,13 @@ public class Modals {
     @Autowired
     private NewBoardgameForm newBoardgameForm;
     @Autowired
+    private CloseGameForm closeGameForm;
+    @Autowired
+    private ChoseGameForm choseGameForm;
+    @Autowired
     private BoardgameDao boardgameDao;
+    @Autowired
+    private GameDao gameDao;
 
     public View createGameModal() {
 
@@ -49,7 +62,7 @@ public class Modals {
                         divider(),
                         input(input -> input
                                 .blockId(newGameForm.gameInputID)
-                                .label(plainText("Game"))
+                                .label(plainText("Boardgame"))
                                 .element(staticSelect(ss -> ss
                                         .actionId(newGameForm.gameInputActionID)
                                         .options(options)
@@ -146,6 +159,71 @@ public class Modals {
                                 ))
                         )
                 ))
+        );
+    }
+
+    public View choseGame() {
+
+        List<OptionObject> options = new ArrayList<>();
+        for (Game g:gameDao.findByRunningTrue()) {
+            options.add(option(plainText(g.getFullname()),String.valueOf(g.id)));
+        }
+
+        return view(view -> view
+                .callbackId(choseGameForm.callbackID)
+                .type("modal")
+                .notifyOnClose(true)
+                .title(viewTitle(title -> title.type("plain_text").text("Chose Game").emoji(true)))
+                .submit(viewSubmit(submit -> submit.type("plain_text").text("Submit").emoji(true)))
+                .close(viewClose(close -> close.type("plain_text").text("Cancel").emoji(true)))
+                .blocks(asBlocks())
+                .blocks(asBlocks(
+                        divider(),
+                        input(input -> input
+                                .blockId(choseGameForm.gameInputID)
+                                .label(plainText("game"))
+                                .element(staticSelect(ss -> ss
+                                        .actionId(choseGameForm.gameInputActionID)
+                                        .options(options)
+                                ))
+                        )
+                ))
+        );
+    }
+
+    public View closeGameModal(Game game) {
+
+        List<LayoutBlock> blocks = new ArrayList<>();
+        for (User player: game.getPlayers() ) {
+            blocks.add(divider());
+            blocks.add(input(input -> input
+                    .blockId(closeGameForm.scoreInputID(player))
+                    .label(plainText(player.name))
+                    .element(plainTextInput(pti -> pti
+                            .actionId(closeGameForm.scoreInputActionID(player))
+                            .placeholder(plainText("0"))
+                    ))
+            ));
+            blocks.add(section(input -> input
+                    .blockId(closeGameForm.winInputID(player))
+                    .text(plainText(" "))
+                    .accessory(checkboxes(check -> check
+                            .actionId(closeGameForm.winInputActionID(player))
+                            .options(Collections.singletonList(option(plainText("winner"),closeGameForm.winInputActionCheckID(player))))
+                    ))
+            ));
+        }
+
+        return view(view -> view
+                .callbackId(closeGameForm.callbackID)
+                .type("modal")
+                .notifyOnClose(true)
+                .title(viewTitle(title -> title.type("plain_text").text("Close Game").emoji(true)))
+                .submit(viewSubmit(submit -> submit.type("plain_text").text("Submit").emoji(true)))
+                .close(viewClose(close -> close.type("plain_text").text("Cancel").emoji(true)))
+                .blocks(asBlocks())
+                .blocks(blocks)
+                .privateMetadata(String.valueOf(game.id))
         );
     }
 }

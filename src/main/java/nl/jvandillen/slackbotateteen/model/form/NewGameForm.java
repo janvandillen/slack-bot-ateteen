@@ -1,4 +1,4 @@
-package nl.jvandillen.slackbotateteen.model;
+package nl.jvandillen.slackbotateteen.model.form;
 
 import com.slack.api.bolt.context.Context;
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
@@ -6,6 +6,9 @@ import com.slack.api.methods.SlackApiException;
 import com.slack.api.model.view.ViewState;
 import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
 import nl.jvandillen.slackbotateteen.controller.UserController;
+import nl.jvandillen.slackbotateteen.model.Boardgame;
+import nl.jvandillen.slackbotateteen.model.Game;
+import nl.jvandillen.slackbotateteen.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +26,6 @@ public class NewGameForm {
 
     @Autowired
     UserController userController;
-
 
     public final String callbackID = "newGame";
     public final String gameInputID = "game";

@@ -1,7 +1,8 @@
-package nl.jvandillen.slackbotateteen.model;
+package nl.jvandillen.slackbotateteen.model.form;
 
 import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 import com.slack.api.model.view.ViewState;
+import nl.jvandillen.slackbotateteen.model.Boardgame;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -3,21 +3,23 @@ package nl.jvandillen.slackbotateteen.model;
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Entity
 public class Game {
 
     @GeneratedValue
     @Id
-    private int id;
+    public int id;
 
     @ManyToOne
     private Boardgame boardgame;
-    private String name;
-    private User[] players;
-    private int[] scores;
-    private User[] winners;
-    private Boolean running;
+    public String name;
+    public User[] players;
+    public int[] scores;
+    public User[] winners;
+    public Boolean running;
+    private String channelID;
 
     public Game() {
     }
@@ -54,15 +56,19 @@ public class Game {
         this.boardgame = boardgame;
     }
 
-    public void setScores(int[] scores) {
-        //this.scores = scores;
-    }
-
-    public void setWinners(User[] winners) {
-        //this.winners = winners;
-    }
-
     public void setRunning(Boolean running) {
         this.running = running;
+    }
+
+    public String getChannelID() {
+        return channelID;
+    }
+
+    public void setChannelID(String channelID) {
+        this.channelID = channelID;
+    }
+
+    public String getFullname() {
+        return boardgame.name.toLowerCase(Locale.ROOT) + "-" + name.toLowerCase(Locale.ROOT) + "-" + id;
     }
 }

@@ -49,4 +49,8 @@ public class SlackActions {
         );
         return new User(id,result.getUser().getRealName());
     };
+
+    public void CloseChannel(ViewSubmissionContext ctx, String channelID) throws SlackApiException, IOException {
+        ctx.client().conversationsArchive(r -> r.token(secrets.getSLACK_BOT_TOKEN()).channel(channelID));
+    }
 }
