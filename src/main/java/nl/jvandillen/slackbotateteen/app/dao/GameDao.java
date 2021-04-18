@@ -10,4 +10,5 @@ import java.util.List;
 public interface GameDao extends JpaRepository<Game, Integer> {
 
     List<Game> findByRunningTrue();
+    List<Game> findByRunningFalse();
 }

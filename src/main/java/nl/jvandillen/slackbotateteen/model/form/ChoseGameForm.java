@@ -17,7 +17,7 @@ public class ChoseGameForm {
 
     public final String callbackID = "choseGame";
     public String gameInputID = "game";
-    public String gameInputActionID = "game_val";
+    public String gameInputActionID = "NA_game_val";
 
     public Game retrieveGame(ViewSubmissionRequest req) {
         Map<String, Map<String, ViewState.Value>> stateValues = req.getPayload().getView().getState().getValues();

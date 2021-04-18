@@ -27,11 +27,11 @@ public class CloseGameForm {
     }
 
     public String scoreInputActionID(User player) {
-        return scorePrefix + "_val_" + player.userID;
+        return "NA_" + scorePrefix + "_val_" + player.userID;
     }
 
     public String scoreInputActionID(String playerID) {
-        return scorePrefix + "_val_" + playerID;
+        return "NA_" + scorePrefix + "_val_" + playerID;
     }
 
     public String winInputID(User player) {
@@ -39,7 +39,7 @@ public class CloseGameForm {
     }
 
     public String winInputActionID(User player) {
-        return "win_val_" + player.userID;
+        return "NA_win_val_" + player.userID;
     }
 
     public String winInputActionCheckID(User player) {
@@ -79,6 +79,7 @@ public class CloseGameForm {
         User[] winnerArr = new User[winners.size()];
         game.winners = winners.toArray(winnerArr);
         game.running = false;
+        game.setClosingDate();
         return game;
     }
 }

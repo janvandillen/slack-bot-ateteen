@@ -13,19 +13,19 @@ public class NewBoardgameForm {
 
     public final String callbackID = "newBoardgame";
     public final String nameInputID = "name";
-    public final String nameInputActionID = "name_val";
+    public final String nameInputActionID = "NA_name_val";
     public final String boardgameInputID = "boardgameInputID";
-    public final String boardgameInputActionID = "boardgameInputActionID";
+    public final String boardgameInputActionID = "NA_boardgameInputActionID";
     public final String minPlayerInputID = "minPlayerInputID";
-    public final String minPlayerInputActionID = "minPlayerInputActionID";
+    public final String minPlayerInputActionID = "NA_minPlayerInputActionID";
     public final String maxPlayerInputID = "maxPlayerInputID";
-    public final String maxPlayerInputActionID = "maxPlayerInputActionID";
+    public final String maxPlayerInputActionID = "NA_maxPlayerInputActionID";
     public final String categoryInputID = "categoryInputID";
-    public final String categoryInputActionID = "categoryInputActionID";
+    public final String categoryInputActionID = "NA_categoryInputActionID";
     public final String websiteInputID = "websiteInputID";
-    public final String websiteInputActionID = "websiteInputActionID";
+    public final String websiteInputActionID = "NA_websiteInputActionID";
     public final String playableInputID = "playableInputID";
-    public final String playableInputActionID = "playableInputActionID";
+    public final String playableInputActionID = "NA_playableInputActionID";
     public final String liveID = "liveID";
     public final String asynchID = "asynchID";
 

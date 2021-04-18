@@ -29,11 +29,11 @@ public class NewGameForm {
 
     public final String callbackID = "newGame";
     public final String gameInputID = "game";
-    public final String gameInputActionID = "game_val";
+    public final String gameInputActionID = "NA_game_val";
     public final String gameNameInputID = "game_name";
-    public final String gameNameInputActionID = "game_name_val";
+    public final String gameNameInputActionID = "NA_game_name_val";
     public final String playersInputID = "players";
-    public final String playersInputActionID = "players_val";
+    public final String playersInputActionID = "NA_players_val";
     
     public Game retrieveGame(Context ctx, ViewSubmissionRequest req) throws SlackApiException, IOException {
         Map<String, Map<String, ViewState.Value>> stateValues = req.getPayload().getView().getState().getValues();

@@ -18,6 +18,8 @@ public class SlackApp {
     @Autowired
     private BlockAction blockAction;
     @Autowired
+    private Home home;
+    @Autowired
     private Secrets secrets;
 
     @Bean
@@ -29,6 +31,7 @@ public class SlackApp {
         command.addCommands(app);
         submission.addSubmissions(app);
         blockAction.addBlockAction(app);
+        home.addHome(app);
         return app;
     }
 }
