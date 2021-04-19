@@ -34,6 +34,7 @@ build/
 
 ### configfiles ###
 *-dev.properties
+*-preprod.properties
 *-prod.properties
 
 # Compiled class file

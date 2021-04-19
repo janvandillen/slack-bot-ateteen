@@ -36,6 +36,9 @@ public class NewGameForm {
     public final String playersInputActionID = "NA_players_val";
     public final String gameURLInputID = "URL";
     public final String gameURLInputActionID = "NA_URL_val";
+    public final String noChannelInputID = "noChannel";
+    public final String noChannelInputActionID = "NA_noChannel_val";
+    public final String noChannelInputActionCheckID = "NA_noChannel_chk";
 
     public Game retrieveGame(Context ctx, ViewSubmissionRequest req) throws SlackApiException, IOException {
         Map<String, Map<String, ViewState.Value>> stateValues = req.getPayload().getView().getState().getValues();
@@ -48,5 +51,10 @@ public class NewGameForm {
             players.add(userController.getUser(ctx,u));
         }
         return new Game(boardgame, name, players, url);
+    }
+
+    public boolean noChannel(ViewSubmissionRequest req) {
+        Map<String, Map<String, ViewState.Value>> stateValues = req.getPayload().getView().getState().getValues();
+        return stateValues.get(noChannelInputID).get(noChannelInputActionID).getSelectedOptions().size() == 1;
     }
 }

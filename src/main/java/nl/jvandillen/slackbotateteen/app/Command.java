@@ -33,7 +33,7 @@ public class Command {
     private Response closeGame(SlashCommandRequest req, SlashCommandContext ctx) throws SlackApiException, IOException {
         ViewsOpenResponse viewsOpenResponse = ctx.client().viewsOpen(r -> r
                 .triggerId(ctx.getTriggerId())
-                .view(modals.choseGame())
+                .view(modals.choseGameModal())
         );
         if (viewsOpenResponse.isOk()) return ctx.ack();
         else return Response.builder().statusCode(500).body(viewsOpenResponse.getError()).build();

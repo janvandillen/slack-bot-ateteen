@@ -62,10 +62,12 @@ public class Submission {
     private Response createGameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) throws SlackApiException, IOException {
         Game game = newGameForm.retrieveGame(ctx, req);
         gameDao.save(game);
-        Conversation channel = slackActions.CreateChannel(ctx, game.getFullname());
-        game.setChannelID(channel.getId());
-        slackActions.InviteToChannel(ctx, channel, game.getPlayers());
-        gameDao.save(game);
+        if (!newGameForm.noChannel(req)) {
+            Conversation channel = slackActions.CreateChannel(ctx, game.getFullname());
+            game.setChannelID(channel.getId());
+            slackActions.InviteToChannel(ctx, channel, game.getPlayers());
+            gameDao.save(game);
+        }
         return ctx.ack();
     }
 

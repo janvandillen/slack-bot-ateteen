@@ -91,6 +91,14 @@ public class Modals {
                                         .placeholder(plainText("https://18xx.games"))
                                 ))
                                 .label(plainText("Link"))
+                        ),
+                        section(input -> input
+                                .blockId(newGameForm.noChannelInputID)
+                                .text(plainText(" "))
+                                .accessory(checkboxes(check -> check
+                                        .actionId(newGameForm.noChannelInputActionID)
+                                        .options(Collections.singletonList(option(plainText("Skip channel creation"),newGameForm.noChannelInputActionCheckID)))
+                                ))
                         )
                 ))
         );
@@ -170,7 +178,7 @@ public class Modals {
         );
     }
 
-    public View choseGame() {
+    public View choseGameModal() {
 
         List<OptionObject> options = new ArrayList<>();
         for (Game g:gameDao.findByRunningTrue()) {

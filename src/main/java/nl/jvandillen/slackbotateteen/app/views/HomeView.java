@@ -62,7 +62,7 @@ public class HomeView {
         games.sort(Comparator.comparing(Game::getClosed).reversed());
         for (Game game: games ) {
             String text = "*" + game.getFullname() + "*\n" +
-                    "Created: " + game.getFormatedCreationDate() + "\n" +
+                    "Created: " + game.getFormatedCreationDate() + " : " +
                     "Closed: " + game.getFormatedClosingDate() + "\n" +
                     "Winners: " + game.getWinnersName() + "\n" +
                     "Players: " + game.getPlayersNameWithScore() + "\n" +

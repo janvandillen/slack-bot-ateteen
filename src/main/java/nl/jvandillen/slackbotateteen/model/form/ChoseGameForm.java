@@ -15,7 +15,7 @@ public class ChoseGameForm {
     @Autowired
     private GameDao gameDao;
 
-    public final String callbackID = "choseGame";
+    public final String callbackID = "choseGameModal";
     public String gameInputID = "game";
     public String gameInputActionID = "NA_game_val";
 
