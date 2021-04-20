@@ -70,7 +70,7 @@ public class Game {
     }
 
     public String getFullname() {
-        return boardgame.name.toLowerCase(Locale.ROOT) + "-" + name.toLowerCase(Locale.ROOT) + "-" + id;
+        return boardgame.name.toLowerCase(Locale.ROOT).replace(" ","_") + "-" + name.toLowerCase(Locale.ROOT).replace(" ","_") + "-" + id;
     }
 
     public void setCreationDate() {
