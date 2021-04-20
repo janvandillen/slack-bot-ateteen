@@ -1,14 +1,18 @@
 package nl.jvandillen.slackbotateteen.model;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
-import java.io.Serializable;
+import javax.persistence.OneToMany;
+import java.util.Set;
 
 @Entity
-public class User implements Serializable {
+public class User {
 
     @Id
     public String userID;
+    @OneToMany(mappedBy = "player",fetch = FetchType.EAGER)
+    Set<GameRegistration> registrations;
 
     public String name;
 
