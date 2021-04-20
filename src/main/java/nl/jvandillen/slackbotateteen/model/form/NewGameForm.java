@@ -5,27 +5,20 @@ import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.model.view.ViewState;
 import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
+import nl.jvandillen.slackbotateteen.app.dao.GameDao;
+import nl.jvandillen.slackbotateteen.app.dao.GameRegistrationDao;
 import nl.jvandillen.slackbotateteen.controller.UserController;
 import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.Game;
-import nl.jvandillen.slackbotateteen.model.User;
+import nl.jvandillen.slackbotateteen.model.GameRegistration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class NewGameForm {
-
-    @Autowired
-    BoardgameDao boardgameDao;
-
-    @Autowired
-    UserController userController;
 
     public final String callbackID = "newGame";
     public final String gameInputID = "game";
@@ -39,18 +32,33 @@ public class NewGameForm {
     public final String noChannelInputID = "noChannel";
     public final String noChannelInputActionID = "NA_noChannel_val";
     public final String noChannelInputActionCheckID = "NA_noChannel_chk";
+    @Autowired
+    BoardgameDao boardgameDao;
+    @Autowired
+    GameDao gameDao;
+    @Autowired
+    GameRegistrationDao registrationDao;
+    @Autowired
+    UserController userController;
 
     public Game retrieveGame(Context ctx, ViewSubmissionRequest req) throws SlackApiException, IOException {
         Map<String, Map<String, ViewState.Value>> stateValues = req.getPayload().getView().getState().getValues();
         Boardgame boardgame = boardgameDao.findById(Integer.parseInt(stateValues.get(gameInputID).get(gameInputActionID).getSelectedOption().getValue())).orElseThrow();
-        String name = stateValues.get(gameNameInputID).get(gameNameInputActionID).getValue().toLowerCase(Locale.ROOT).replace(" ","_");
+        String name = stateValues.get(gameNameInputID).get(gameNameInputActionID).getValue().toLowerCase(Locale.ROOT).replace(" ", "_");
         String url = stateValues.get(gameURLInputID).get(gameURLInputActionID).getValue();
+
+        Game game = new Game(boardgame, name, url);
+        gameDao.save(game);
+
         List<String> playerIDs = stateValues.get(playersInputID).get(playersInputActionID).getSelectedUsers();
-        List<User> players = new ArrayList<>();
-        for (String u: playerIDs) {
-            players.add(userController.getUser(ctx,u));
+        Set<GameRegistration> registrations = new HashSet<>();
+        for (String u : playerIDs) {
+            GameRegistration registration = new GameRegistration(game, userController.getUser(ctx, u));
+            registrations.add(registration);
         }
-        return new Game(boardgame, name, players, url);
+        registrationDao.saveAll(registrations);
+        game.setRegistrations(registrations);
+        return game;
     }
 
     public boolean noChannel(ViewSubmissionRequest req) {

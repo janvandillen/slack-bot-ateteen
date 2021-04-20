@@ -11,27 +11,23 @@ public class Game {
     @GeneratedValue
     @Id
     public int id;
-
+    @OneToMany(mappedBy = "game", fetch = FetchType.EAGER)
+    Set<GameRegistration> registrations;
+    String name;
+    Boolean running;
+    String channelID;
+    Date created;
+    Date closed;
+    String url;
     @ManyToOne
     private Boardgame boardgame;
-    public String name;
-    public User[] players;
-    public int[] scores;
-    public User[] winners;
-    public Boolean running;
-    private String channelID;
-    public Date created;
-    public Date closed;
-    public String url;
 
     public Game() {
     }
 
-    public Game(Boardgame boardgame, String name, List<User> playersList, String url) {
+    public Game(Boardgame boardgame, String name, String url) {
         this.boardgame = boardgame;
         this.name = name;
-        this.players = new User[playersList.size()];
-        this.players = playersList.toArray(players);
         this.running = true;
         this.url = url;
         setCreationDate();
@@ -41,20 +37,20 @@ public class Game {
         return name;
     }
 
-    public List<User> getPlayers() {
-        return Arrays.stream(players).toList();
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setPlayers(User[] players) {
-        this.players = players;
+    public List<User> getPlayers() {
+        List<User> out = new ArrayList<>();
+        for (GameRegistration gr : registrations) {
+            out.add(gr.player);
+        }
+        return out;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setBoardgame(Boardgame boardgame) {
@@ -77,11 +73,11 @@ public class Game {
         return boardgame.name.toLowerCase(Locale.ROOT) + "-" + name.toLowerCase(Locale.ROOT) + "-" + id;
     }
 
-    public void setCreationDate(){
+    public void setCreationDate() {
         created = Calendar.getInstance().getTime();
     }
 
-    public void setClosingDate(){
+    public void setClosingDate() {
         closed = Calendar.getInstance().getTime();
     }
 
@@ -100,31 +96,32 @@ public class Game {
 
     public String getPlayersName() {
         StringBuilder out = new StringBuilder();
-        for (User p: players ) {
-            out.append(p.name).append(", ");
+        for (GameRegistration gr : registrations) {
+            out.append(gr.player.name).append(", ");
         }
-        out.deleteCharAt(out.length()-1);
-        out.deleteCharAt(out.length()-1);
+        out.deleteCharAt(out.length() - 1);
+        out.deleteCharAt(out.length() - 1);
         return out.toString();
     }
 
     public String getPlayersNameWithScore() {
         StringBuilder out = new StringBuilder();
-        for (int i = 0; i < players.length; i++) {
-            out.append(players[i].name).append(" (").append(scores[i]).append("), ");
+        for (GameRegistration gr : registrations) {
+            out.append(gr.player.name).append(" (").append(gr.score).append("), ");
         }
-        out.deleteCharAt(out.length()-1);
-        out.deleteCharAt(out.length()-1);
+        out.deleteCharAt(out.length() - 1);
+        out.deleteCharAt(out.length() - 1);
         return out.toString();
     }
 
     public String getWinnersName() {
         StringBuilder out = new StringBuilder();
-        for (User p: winners ) {
-            out.append(p.name).append(", ");
+        for (GameRegistration gr : registrations) {
+            if (gr.win) out.append(gr.player.name).append(", ");
         }
-        out.deleteCharAt(out.length()-1);
-        out.deleteCharAt(out.length()-1);
+        if (out.length() == 0) return out.toString();
+        out.deleteCharAt(out.length() - 1);
+        out.deleteCharAt(out.length() - 1);
         return out.toString();
     }
 
@@ -137,5 +134,13 @@ public class Game {
             return "";
         }
         return url;
+    }
+
+    public Set<GameRegistration> getRegistrations() {
+        return registrations;
+    }
+
+    public void setRegistrations(Set<GameRegistration> registrations) {
+        this.registrations = registrations;
     }
 }
