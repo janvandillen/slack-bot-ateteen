@@ -234,7 +234,7 @@ public class Modals {
                 .callbackId(closeGameForm.callbackID)
                 .type("modal")
                 .notifyOnClose(true)
-                .title(viewTitle(title -> title.type("plain_text").text("Close Game").emoji(true)))
+                .title(viewTitle(title -> title.type("plain_text").text("Close Game: " + game.getFullname()).emoji(true)))
                 .submit(viewSubmit(submit -> submit.type("plain_text").text("Submit").emoji(true)))
                 .close(viewClose(close -> close.type("plain_text").text("Cancel").emoji(true)))
                 .blocks(asBlocks())
