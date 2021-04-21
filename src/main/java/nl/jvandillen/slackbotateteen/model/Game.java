@@ -105,8 +105,9 @@ public class Game {
     }
 
     public String getPlayersNameWithScore() {
+        List<GameRegistration> registrationList = registrations.stream().sorted(Comparator.comparingInt(GameRegistration::getScore).reversed()).toList();
         StringBuilder out = new StringBuilder();
-        for (GameRegistration gr : registrations) {
+        for (GameRegistration gr : registrationList) {
             out.append(gr.player.name).append(" (").append(gr.score).append("), ");
         }
         out.deleteCharAt(out.length() - 1);
