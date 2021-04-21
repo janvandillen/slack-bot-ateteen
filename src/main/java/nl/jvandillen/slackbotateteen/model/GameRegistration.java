@@ -52,4 +52,8 @@ public class GameRegistration {
     public void setPlayer(User player) {
         this.player = player;
     }
+
+    public int getScore() {
+        return score;
+    }
 }

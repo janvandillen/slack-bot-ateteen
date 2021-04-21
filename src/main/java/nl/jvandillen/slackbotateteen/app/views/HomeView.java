@@ -64,7 +64,7 @@ public class HomeView {
             String text = "*" + game.getFullname() + "*\n" +
                     "Created: " + game.getFormatedCreationDate() + " : " +
                     "Closed: " + game.getFormatedClosingDate() + "\n" +
-                    "Winners: " + game.getWinnersName() + "\n" +
+                    "Winner: " + game.getWinnersName() + "\n" +
                     "Players: " + game.getPlayersNameWithScore() + "\n" +
                     game.getUrl();
             blocks.add(section(sct -> sct
