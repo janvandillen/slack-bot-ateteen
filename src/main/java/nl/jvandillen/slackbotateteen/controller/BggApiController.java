@@ -63,10 +63,10 @@ public class BggApiController {
                         boardgame.setPlayingtime(Integer.parseInt(node.getAttributes().getNamedItem("value").getNodeValue()));
                         break;
                     case "minplaytime":
-                        boardgame.setMinplaytim(Integer.parseInt(node.getAttributes().getNamedItem("value").getNodeValue()));
+                        boardgame.setMinPlaytime(Integer.parseInt(node.getAttributes().getNamedItem("value").getNodeValue()));
                         break;
                     case "maxplaytime":
-                        boardgame.setMaxplaytime(Integer.parseInt(node.getAttributes().getNamedItem("value").getNodeValue()));
+                        boardgame.setMaxPlaytime(Integer.parseInt(node.getAttributes().getNamedItem("value").getNodeValue()));
                         break;
                     case "link":
                         boardgame.addCategory(getCategoryID(boardgame, node));

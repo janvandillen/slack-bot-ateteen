@@ -82,7 +82,6 @@ public class Submission {
             e.printStackTrace();
         }
 
-        Boardgame finalBoardgame = boardgame;
         View view = modals.updateBoardgameModal(boardgame);
         return ctx.ack(r -> r.responseAction("update").view(view));
     }

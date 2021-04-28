@@ -19,8 +19,8 @@ public class Boardgame {
     int minPlayers;
     int[] bestPlayerCounts;
     int playingtime;
-    int minplaytim;
-    int maxplaytime;
+    int minPlaytime;
+    int maxPlaytime;
     boolean async;
     boolean liveOnline;
     String website;
@@ -90,12 +90,12 @@ public class Boardgame {
         this.playingtime = playingtime;
     }
 
-    public void setMinplaytim(int minplaytim) {
-        this.minplaytim = minplaytim;
+    public void setMinPlaytime(int minplaytim) {
+        this.minPlaytime = minplaytim;
     }
 
-    public void setMaxplaytime(int maxplaytime) {
-        this.maxplaytime = maxplaytime;
+    public void setMaxPlaytime(int maxplaytime) {
+        this.maxPlaytime = maxplaytime;
     }
 
     public String getName() {
