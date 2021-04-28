@@ -70,7 +70,11 @@ public class Game {
     }
 
     public String getFullname() {
-        return boardgame.name.toLowerCase(Locale.ROOT).replace(" ","_") + "-" + name.toLowerCase(Locale.ROOT).replace(" ","_") + "-" + id;
+        if (boardgame.shortName == null) {
+            return boardgame.name.toLowerCase(Locale.ROOT).replace(" ", "_") + "-" + name.toLowerCase(Locale.ROOT).replace(" ", "_") + "-" + id;
+        } else {
+            return boardgame.shortName.toLowerCase(Locale.ROOT).replace(" ", "_") + "-" + name.toLowerCase(Locale.ROOT).replace(" ", "_") + "-" + id;
+        }
     }
 
     public void setCreationDate() {

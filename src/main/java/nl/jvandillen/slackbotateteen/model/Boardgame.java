@@ -1,25 +1,34 @@
 package nl.jvandillen.slackbotateteen.model;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Boardgame {
 
-    @GeneratedValue
     @Id
-    public int id;
+    int id;
 
-    public String name;
-    private int maxPlayers;
-    private int minPlayers;
-    private boolean async;
-    private boolean liveOnline;
-    private String website;
-    private String category;
+    String name;
+    String shortName;
+    int maxPlayers;
+    int minPlayers;
+    int[] bestPlayerCounts;
+    int playingtime;
+    int minPlaytime;
+    int maxPlaytime;
+    boolean async;
+    boolean liveOnline;
+    String website;
+    @OneToMany(mappedBy = "boardgame", fetch = FetchType.EAGER)
+    Set<BoardgameToBggCategory> boardgameCategories;
 
-    public Boardgame(){}
+    public Boardgame() {
+    }
 
     public Boardgame(String name, int maxPlayers, int minPlayers, boolean async, boolean liveOnline, String website, String category) {
         this.name = name;
@@ -28,15 +37,12 @@ public class Boardgame {
         this.async = async;
         this.liveOnline = liveOnline;
         this.website = website;
-        this.category = category;
+        //this.category = category;
     }
 
-    public void setId(int id) {
+    public Boardgame(int id) {
+        boardgameCategories = new HashSet<>();
         this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public void setMaxPlayers(int maxPlayers) {
@@ -59,7 +65,44 @@ public class Boardgame {
         this.website = website;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    public void addCategory(BoardgameToBggCategory category) {
+
+        boardgameCategories.add(category);
+    }
+
+    public void setPlayingtime(int playingtime) {
+        this.playingtime = playingtime;
+    }
+
+    public void setMinPlaytime(int minplaytim) {
+        this.minPlaytime = minplaytim;
+    }
+
+    public void setMaxPlaytime(int maxplaytime) {
+        this.maxPlaytime = maxplaytime;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
