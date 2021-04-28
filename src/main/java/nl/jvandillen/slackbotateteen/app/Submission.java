@@ -71,19 +71,23 @@ public class Submission {
         try {
             id = newBoardgameForm.retrieveBggID(req);
         } catch (NumberFormatException nfe) {
-            return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newBoardgameForm.boardgameInputActionID, "needs to be an integer")));
+            return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newBoardgameForm.boardgameInputID, "needs to be an integer")));
         }
+
+        if (boardgameDao.existsById(id))
+            return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newBoardgameForm.boardgameInputID, "ID already exists")));
 
         Boardgame boardgame = null;
         try {
             boardgame = bggApiController.getBoardgameFromBgg(id);
             boardgameDao.save(boardgame);
+            View view = modals.updateBoardgameModal(boardgame);
+            return ctx.ack(r -> r.responseAction("update").view(view));
         } catch (ParserConfigurationException | IOException | SAXException e) {
+            boardgameDao.deleteById(id);
             e.printStackTrace();
         }
-
-        View view = modals.updateBoardgameModal(boardgame);
-        return ctx.ack(r -> r.responseAction("update").view(view));
+        return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newBoardgameForm.boardgameInputID, "something went wrong with fetching the ID")));
     }
 
     private Response createGameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) throws SlackApiException, IOException {
