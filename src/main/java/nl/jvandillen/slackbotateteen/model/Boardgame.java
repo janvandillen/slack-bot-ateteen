@@ -26,6 +26,8 @@ public class Boardgame {
     String website;
     @OneToMany(mappedBy = "boardgame", fetch = FetchType.EAGER)
     Set<BoardgameToBggCategory> boardgameCategories;
+    @OneToMany(mappedBy = "boardgame", fetch = FetchType.EAGER)
+    Set<BoardgameRating> ratings;
 
     public Boardgame() {
     }
@@ -104,5 +106,9 @@ public class Boardgame {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<BoardgameRating> getRatings() {
+        return ratings;
     }
 }

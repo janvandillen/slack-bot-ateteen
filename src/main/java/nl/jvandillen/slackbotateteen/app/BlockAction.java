@@ -6,7 +6,10 @@ import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.bolt.response.Response;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
+import com.slack.api.model.view.View;
+import nl.jvandillen.slackbotateteen.app.views.HomeView;
 import nl.jvandillen.slackbotateteen.app.views.Modals;
+import nl.jvandillen.slackbotateteen.controller.UserController;
 import nl.jvandillen.slackbotateteen.model.Game;
 import nl.jvandillen.slackbotateteen.model.form.HomeForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +24,37 @@ public class BlockAction {
     @Autowired
     private HomeForm homeForm;
     @Autowired
+    private HomeView homeView;
+    @Autowired
+    private UserController userController;
+    @Autowired
     private Modals modals;
 
     public void addBlockAction(App app) {
-        app.blockAction(homeForm.boardgameInputActionID,this::createBoardGame);
-        app.blockAction(homeForm.gameInputActionID,this::createGame);
-        app.blockAction(homeForm.closegameInputActionID,this::closeGame);
-        app.blockAction(Pattern.compile("NA_.*"),(req,ctx) -> ctx.ack());
+        app.blockAction(homeForm.boardgameInputActionID, this::createBoardGame);
+        app.blockAction(homeForm.gameInputActionID, this::createGame);
+        app.blockAction(homeForm.closegameInputActionID, this::closeGame);
+        app.blockAction(homeForm.gameTabInputActionID, this::openGameTab);
+        app.blockAction(homeForm.settingsTabInputActionID, this::openSettingsTab);
+        app.blockAction(Pattern.compile("NA_.*"), (req, ctx) -> ctx.ack());
+    }
+
+    private Response openSettingsTab(BlockActionRequest req, ActionContext ctx) throws SlackApiException, IOException {
+        View appHomeView = homeView.createSettingsView(userController.getUser(ctx, ctx.getRequestUserId()));
+        ctx.client().viewsPublish(r -> r
+                .userId(ctx.getRequestUserId())
+                .view(appHomeView)
+        );
+        return ctx.ack();
+    }
+
+    private Response openGameTab(BlockActionRequest req, ActionContext ctx) throws SlackApiException, IOException {
+        View appHomeView = homeView.createGamesView();
+        ctx.client().viewsPublish(r -> r
+                .userId(ctx.getRequestUserId())
+                .view(appHomeView)
+        );
+        return ctx.ack();
     }
 
     public Response closeGame(BlockActionRequest req, ActionContext ctx) throws SlackApiException, IOException {

@@ -14,9 +14,9 @@ public class Home {
     @Autowired
     private HomeView homeView;
 
-    public void addHome(App app){
+    public void addHome(App app) {
         app.event(AppHomeOpenedEvent.class, (payload, ctx) -> {
-            View appHomeView = homeView.createView();
+            View appHomeView = homeView.createGamesView();
             ViewsPublishResponse res = ctx.client().viewsPublish(r -> r
                     .userId(payload.getEvent().getUser())
                     .view(appHomeView)

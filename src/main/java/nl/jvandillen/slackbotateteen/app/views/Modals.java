@@ -204,7 +204,7 @@ public class Modals {
             blocks.add(divider());
             blocks.add(input(input -> input
                     .blockId(closeGameForm.scoreInputID(player))
-                    .label(plainText(player.name))
+                    .label(plainText(player.getName()))
                     .element(plainTextInput(pti -> pti
                             .actionId(closeGameForm.scoreInputActionID(player))
                             .placeholder(plainText("0"))
