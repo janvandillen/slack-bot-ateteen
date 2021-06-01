@@ -19,8 +19,17 @@ public class BoardgameRating {
     User player;
 
     float rating;
-    boolean fixed;
+    boolean ratingFixed;
     int maxGames;
+    boolean maxGamesFixed;
+
+    public BoardgameRating() {
+    }
+
+    public BoardgameRating(Boardgame boardgame, User player) {
+        this.boardgame = boardgame;
+        this.player = player;
+    }
 
     public Boardgame getBoardgame() {
         return boardgame;
@@ -34,11 +43,25 @@ public class BoardgameRating {
         return rating;
     }
 
-    public boolean isFixed() {
-        return fixed;
+    public void setRating(int rating) {
+        this.rating = rating;
+        ratingFixed = true;
+    }
+
+    public boolean isRatingFixed() {
+        return ratingFixed;
     }
 
     public int getMaxGames() {
         return maxGames;
+    }
+
+    public void setMaxGames(int maxGames) {
+        this.maxGames = maxGames;
+        maxGamesFixed = true;
+    }
+
+    public boolean isMaxGamesFixed() {
+        return maxGamesFixed;
     }
 }

@@ -11,8 +11,10 @@ import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
 import nl.jvandillen.slackbotateteen.app.dao.GameDao;
 import nl.jvandillen.slackbotateteen.app.views.Modals;
 import nl.jvandillen.slackbotateteen.controller.BggApiController;
+import nl.jvandillen.slackbotateteen.controller.SettingController;
 import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.Game;
+import nl.jvandillen.slackbotateteen.model.Setting;
 import nl.jvandillen.slackbotateteen.model.form.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,11 +43,15 @@ public class Submission {
     @Autowired
     private UpdateBoardgameForm updateBoardgameForm;
     @Autowired
+    private SimpleModalForm simpleModalForm;
+    @Autowired
     private Modals modals;
     @Autowired
     private BoardgameDao boardgameDao;
     @Autowired
     private GameDao gameDao;
+    @Autowired
+    private SettingController settingController;
 
     public void addSubmissions(App app) {
         app.viewSubmission(newGameForm.callbackID, this::createGameSubmission);
@@ -53,6 +59,16 @@ public class Submission {
         app.viewSubmission(closeGameForm.callbackID, this::closeGameSubmission);
         app.viewSubmission(choseGameForm.callbackID, this::choseGameSubmission);
         app.viewSubmission(updateBoardgameForm.callbackID, this::updateBoardgameSubmission);
+        app.viewSubmission(simpleModalForm.callbackID, this::simpleModalSubmission);
+    }
+
+    private Response simpleModalSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) {
+        Setting setting = simpleModalForm.getSetting(req);
+        String value = simpleModalForm.getValue(req);
+        if (!settingController.set(setting, value))
+            return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(simpleModalForm.IDInputID, setting.getErrorCode())));
+
+        return ctx.ack();
     }
 
     private Response updateBoardgameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) {

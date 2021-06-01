@@ -85,81 +85,72 @@ public class HomeView {
 
         List<LayoutBlock> blocks = getInitialBlocks();
 
+        blocks.add(header(header -> header.text(plainText("General settings"))));
+
         blocks.add(section(sct -> sct
                 .text(markdownText("Default rating for new games: " + user.getDefaultRating()))
                 .accessory(button(btn -> btn
                         .actionId(homeForm.modifySettingInputActionID)
                         .text(plainText("modify"))
-                        .value(homeForm.userDefaultScore)
+                        .value(homeForm.userDefaultScore(user))
                 ))
         ));
 
         blocks.add(section(sct -> sct
                 .text(markdownText("How many games do you want to play at least: " + user.getMinGames()))
                 .accessory(button(btn -> btn
-                        .actionId(homeForm.userDefaultMaxSimilarGames)
+                        .actionId(homeForm.modifySettingInputActionID)
                         .text(plainText("modify"))
-                        .value(homeForm.userDefaultScore)
+                        .value(homeForm.userMinGames(user))
                 ))
         ));
 
         blocks.add(section(sct -> sct
                 .text(markdownText("How many games do you want to play at maximum: " + user.getMaxGames()))
                 .accessory(button(btn -> btn
-                        .actionId(homeForm.userMaxGames)
+                        .actionId(homeForm.modifySettingInputActionID)
                         .text(plainText("modify"))
-                        .value(homeForm.userDefaultScore)
+                        .value(homeForm.userMaxGames(user))
                 ))
         ));
 
         blocks.add(section(sct -> sct
-                .text(markdownText("How many games of the same board game doo you want to play by default (0 is infinite): " + user.getDefaultMaxSimilarGames()))
+                .text(markdownText("How many games of the same board game do you want to play by default (0 is infinite): " + user.getDefaultMaxSimilarGames()))
                 .accessory(button(btn -> btn
-                        .actionId(homeForm.userMinGames)
+                        .actionId(homeForm.modifySettingInputActionID)
                         .text(plainText("modify"))
-                        .value(homeForm.userDefaultScore)
+                        .value(homeForm.userDefaultMaxSimilarGames(user))
                 ))
         ));
 
         blocks.add(divider());
-        for (Boardgame boardgame : databaseController.getAllBoardGame()) {
+        blocks.add(header(header -> header.text(plainText("specific game settings"))));
+        blocks.add(section(sct -> sct
+                .text(markdownText("- Value in `( )` are calculated values \n- Ratings go from `0: I never want to play this game` to `7: even if I am at my max games I still want to play it`. \n- if max games is `0` for specific games it means that there is no limit in how often you want to play this game"))
+        ));
+
+        for (Boardgame boardgame : databaseController.getAllBoardGame(true)) {
 
             String rating = "(" + user.getDefaultRating() + ")";
             String maxGames = "(" + user.getDefaultMaxSimilarGames() + ")";
 
             for (BoardgameRating r : boardgame.getRatings()) {
-                if (r.getPlayer() == user) {
-                    if (r.isFixed()) {
-                        rating = String.valueOf(r.getRating());
-                        maxGames = String.valueOf(r.getMaxGames());
-                    }
+                if (r.getPlayer().equals(user)) {
+                    if (r.isRatingFixed()) rating = String.valueOf(r.getRating());
+                    if (r.isMaxGamesFixed()) maxGames = String.valueOf(r.getMaxGames());
                     break;
                 }
             }
-
-            blocks.add(section(sct -> sct
-                    .text(markdownText("*" + boardgame.getName() + "*"))
-            ));
             String finalRating = rating;
-
-            blocks.add(section(sct -> sct
-                    .text(markdownText("Rating: " + finalRating))
-                    .accessory(button(btn -> btn
-                            .actionId(homeForm.modifyGameRatingInputActionID)
-                            .text(plainText("modify rating"))
-                            .value(String.valueOf(boardgame.getId()))
-                    ))
-            ));
-
             String finalMaxGames = maxGames;
             blocks.add(section(sct -> sct
-                    .text(markdownText("How many games of this boardgame do you want to max play at the same time: " + finalMaxGames))
-                    .accessory(button(btn -> btn
-                            .actionId(homeForm.modifyGameMaxGameInputActionID)
-                            .text(plainText("modify"))
-                            .value(String.valueOf(boardgame.getId()))
-                    ))
+                    .text(markdownText("*" + boardgame.getName() + "*\nRating: " + finalRating + "\nmax games: " + finalMaxGames))
             ));
+
+            List<BlockElement> gameSettings = new ArrayList<>();
+            gameSettings.add(button(btn -> btn.text(plainText("modify rating")).actionId(homeForm.modifyGameRatingInputActionID).value(homeForm.modifyGameRating(user, boardgame))));
+            gameSettings.add(button(btn -> btn.text(plainText("modify max games")).actionId(homeForm.modifyGameMaxGameInputActionID).value(homeForm.modifymaxGames(user, boardgame))));
+            blocks.add(actions(act -> act.elements(gameSettings)));
 
         }
 

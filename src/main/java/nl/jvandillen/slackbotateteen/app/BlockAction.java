@@ -11,6 +11,7 @@ import nl.jvandillen.slackbotateteen.app.views.HomeView;
 import nl.jvandillen.slackbotateteen.app.views.Modals;
 import nl.jvandillen.slackbotateteen.controller.UserController;
 import nl.jvandillen.slackbotateteen.model.Game;
+import nl.jvandillen.slackbotateteen.model.Setting;
 import nl.jvandillen.slackbotateteen.model.form.HomeForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,7 +37,21 @@ public class BlockAction {
         app.blockAction(homeForm.closegameInputActionID, this::closeGame);
         app.blockAction(homeForm.gameTabInputActionID, this::openGameTab);
         app.blockAction(homeForm.settingsTabInputActionID, this::openSettingsTab);
+        app.blockAction(homeForm.modifySettingInputActionID, this::modifySetting);
+        app.blockAction(homeForm.modifyGameRatingInputActionID, this::modifySetting);
+        app.blockAction(homeForm.modifyGameMaxGameInputActionID, this::modifySetting);
         app.blockAction(Pattern.compile("NA_.*"), (req, ctx) -> ctx.ack());
+    }
+
+
+    private Response modifySetting(BlockActionRequest req, ActionContext ctx) throws SlackApiException, IOException {
+        Setting setting = homeForm.getSetting(req);
+        ViewsOpenResponse viewsOpenResponse = ctx.client().viewsOpen(r -> r
+                .triggerId(ctx.getTriggerId())
+                .view(modals.simpleModal(setting))
+        );
+        if (viewsOpenResponse.isOk()) return ctx.ack();
+        else return Response.builder().statusCode(500).body(viewsOpenResponse.getError()).build();
     }
 
     private Response openSettingsTab(BlockActionRequest req, ActionContext ctx) throws SlackApiException, IOException {

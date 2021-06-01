@@ -5,8 +5,10 @@ import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.View;
 import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
 import nl.jvandillen.slackbotateteen.app.dao.GameDao;
+import nl.jvandillen.slackbotateteen.controller.SettingController;
 import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.Game;
+import nl.jvandillen.slackbotateteen.model.Setting;
 import nl.jvandillen.slackbotateteen.model.User;
 import nl.jvandillen.slackbotateteen.model.form.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +38,13 @@ public class Modals {
     @Autowired
     private UpdateBoardgameForm updateBoardgameForm;
     @Autowired
+    private SimpleModalForm simpleModalForm;
+    @Autowired
     private BoardgameDao boardgameDao;
     @Autowired
     private GameDao gameDao;
+    @Autowired
+    private SettingController settingController;
 
     public View createGameModal() {
 
@@ -236,6 +242,27 @@ public class Modals {
                 .blocks(asBlocks())
                 .blocks(blocks)
                 .privateMetadata(String.valueOf(game.id))
+        );
+    }
+
+    public View simpleModal(Setting setting ){
+        return view(view -> view
+                .callbackId(simpleModalForm.callbackID)
+                .type("modal")
+                .notifyOnClose(true)
+                .title(viewTitle(title -> title.type("plain_text").text("modify setting").emoji(true)))
+                .submit(viewSubmit(submit -> submit.type("plain_text").text("Submit").emoji(true)))
+                .close(viewClose(close -> close.type("plain_text").text("Cancel").emoji(true)))
+                .blocks(asBlocks())
+                .blocks(asBlocks(
+                        divider(),
+                        input(input -> input
+                                .blockId(simpleModalForm.IDInputID)
+                                .element(plainTextInput(pti -> pti.actionId(simpleModalForm.IDInputActionID)))
+                                .label(plainText((pt -> pt.text(setting.getName()))))
+                        )
+                ))
+                .privateMetadata(settingController.encode(setting))
         );
     }
 }
