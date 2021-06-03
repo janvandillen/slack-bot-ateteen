@@ -50,7 +50,7 @@ public class DatabaseController {
     }
 
     public List<Game> getFinishedGames() {
-        return gameDao.findByRunningFalse();
+        return gameDao.findTop20ByRunningFalseOrderByClosedDesc();
     }
 
     public Game findGame(int id) {

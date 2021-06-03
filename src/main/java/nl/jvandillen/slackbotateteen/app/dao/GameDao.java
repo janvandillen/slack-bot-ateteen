@@ -11,4 +11,5 @@ public interface GameDao extends JpaRepository<Game, Integer> {
 
     List<Game> findByRunningTrue();
     List<Game> findByRunningFalse();
+    List<Game> findTop20ByRunningFalseOrderByClosedDesc();
 }
