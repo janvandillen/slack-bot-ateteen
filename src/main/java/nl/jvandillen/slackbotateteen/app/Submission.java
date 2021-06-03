@@ -7,11 +7,12 @@ import com.slack.api.bolt.response.Response;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.model.Conversation;
 import com.slack.api.model.view.View;
-import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
-import nl.jvandillen.slackbotateteen.app.dao.GameDao;
+import nl.jvandillen.slackbotateteen.app.views.HomeView;
 import nl.jvandillen.slackbotateteen.app.views.Modals;
 import nl.jvandillen.slackbotateteen.controller.BggApiController;
+import nl.jvandillen.slackbotateteen.controller.DatabaseController;
 import nl.jvandillen.slackbotateteen.controller.SettingController;
+import nl.jvandillen.slackbotateteen.controller.UserController;
 import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.Game;
 import nl.jvandillen.slackbotateteen.model.Setting;
@@ -47,11 +48,13 @@ public class Submission {
     @Autowired
     private Modals modals;
     @Autowired
-    private BoardgameDao boardgameDao;
-    @Autowired
-    private GameDao gameDao;
-    @Autowired
     private SettingController settingController;
+    @Autowired
+    private DatabaseController databaseController;
+    @Autowired
+    private HomeView homeView;
+    @Autowired
+    private UserController userController;
 
     public void addSubmissions(App app) {
         app.viewSubmission(newGameForm.callbackID, this::createGameSubmission);
@@ -62,18 +65,23 @@ public class Submission {
         app.viewSubmission(simpleModalForm.callbackID, this::simpleModalSubmission);
     }
 
-    private Response simpleModalSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) {
+    private Response simpleModalSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) throws SlackApiException, IOException {
         Setting setting = simpleModalForm.getSetting(req);
         String value = simpleModalForm.getValue(req);
         if (!settingController.set(setting, value))
             return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(simpleModalForm.IDInputID, setting.getErrorCode())));
 
+        View appHomeView = homeView.createSettingsView(userController.getUser(ctx, ctx.getRequestUserId()));
+        ctx.client().viewsPublish(r -> r
+                .userId(ctx.getRequestUserId())
+                .view(appHomeView)
+        );
         return ctx.ack();
     }
 
     private Response updateBoardgameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) {
         Boardgame boardgame = updateBoardgameForm.retrieveBoardgame(req);
-        boardgameDao.save(boardgame);
+        databaseController.save(boardgame);
         return ctx.ack();
     }
 
@@ -90,17 +98,17 @@ public class Submission {
             return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newBoardgameForm.boardgameInputID, "needs to be an integer")));
         }
 
-        if (boardgameDao.existsById(id))
+        if (databaseController.boardgameExists(id))
             return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newBoardgameForm.boardgameInputID, "ID already exists")));
 
         Boardgame boardgame = null;
         try {
             boardgame = bggApiController.getBoardgameFromBgg(id);
-            boardgameDao.save(boardgame);
+            databaseController.save(boardgame);
             View view = modals.updateBoardgameModal(boardgame);
             return ctx.ack(r -> r.responseAction("update").view(view));
         } catch (ParserConfigurationException | IOException | SAXException e) {
-            boardgameDao.deleteById(id);
+            databaseController.deleteBoardgame(id);
             e.printStackTrace();
         }
         return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newBoardgameForm.boardgameInputID, "something went wrong with fetching the ID")));
@@ -108,13 +116,18 @@ public class Submission {
 
     private Response createGameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) throws SlackApiException, IOException {
         Game game = newGameForm.retrieveGame(ctx, req);
-        gameDao.save(game);
+        databaseController.save(game);
         if (!newGameForm.noChannel(req)) {
             Conversation channel = slackActions.CreateChannel(ctx, game.getFullname());
             game.setChannelID(channel.getId());
             slackActions.InviteToChannel(ctx, channel, game.getPlayers());
-            gameDao.save(game);
+            databaseController.save(game);
         }
+        View appHomeView = homeView.createGamesView();
+        ctx.client().viewsPublish(r -> r
+                .userId(ctx.getRequestUserId())
+                .view(appHomeView)
+        );
         return ctx.ack();
     }
 
@@ -124,8 +137,13 @@ public class Submission {
             return ctx.ack(r -> r.responseAction("errors").errors(errors));
         }
         Game game = closeGameForm.retrieveGame(req);
-        gameDao.save(game);
+        databaseController.save(game);
         slackActions.CloseChannel(ctx, game.getChannelID());
+        View appHomeView = homeView.createGamesView();
+        ctx.client().viewsPublish(r -> r
+                .userId(ctx.getRequestUserId())
+                .view(appHomeView)
+        );
         return ctx.ack();
     }
 

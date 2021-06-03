@@ -29,13 +29,6 @@ public class DatabaseController {
     @Autowired
     private CategoryRatingDao categoryRatingDao;
 
-    public void save(User user) {
-        gameRegistrationDao.saveAll(user.getRegistrations());
-        boardgameRatingDao.saveAll(user.getBoardgameRatings());
-        categoryRatingDao.saveAll(user.getCategoryRatings());
-        userDao.save(user);
-    }
-
     public List<Boardgame> getAllBoardGame() {
         return boardgameDao.findAll();
     }
@@ -67,5 +60,28 @@ public class DatabaseController {
 
     public List<User> getAllUsers() {
         return userDao.findAll();
+    }
+
+    public void save(User user) {
+        gameRegistrationDao.saveAll(user.getRegistrations());
+        boardgameRatingDao.saveAll(user.getBoardgameRatings());
+        categoryRatingDao.saveAll(user.getCategoryRatings());
+        userDao.save(user);
+    }
+
+    public void save(Boardgame boardgame) {
+        boardgameDao.save(boardgame);
+    }
+
+    public void save(Game game) {
+        gameDao.save(game);
+    }
+
+    public boolean boardgameExists(int id) {
+        return boardgameDao.existsById(id);
+    }
+
+    public void deleteBoardgame(int id) {
+        boardgameDao.deleteById(id);
     }
 }
