@@ -5,6 +5,7 @@ import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.View;
 import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
 import nl.jvandillen.slackbotateteen.app.dao.GameDao;
+import nl.jvandillen.slackbotateteen.controller.DatabaseController;
 import nl.jvandillen.slackbotateteen.controller.SettingController;
 import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.Game;
@@ -40,16 +41,14 @@ public class Modals {
     @Autowired
     private SimpleModalForm simpleModalForm;
     @Autowired
-    private BoardgameDao boardgameDao;
-    @Autowired
-    private GameDao gameDao;
-    @Autowired
     private SettingController settingController;
+    @Autowired
+    private DatabaseController databaseController;
 
     public View createGameModal() {
 
         List<OptionObject> options = new ArrayList<>();
-        for (Boardgame b : boardgameDao.findAll()) {
+        for (Boardgame b : databaseController.getAllBoardGame(true)) {
             options.add(option(plainText(b.getName()), String.valueOf(b.getId())));
         }
 
@@ -179,7 +178,7 @@ public class Modals {
     public View choseGameModal() {
 
         List<OptionObject> options = new ArrayList<>();
-        for (Game g : gameDao.findByRunningTrue()) {
+        for (Game g : databaseController.getRunningGames()) {
             options.add(option(plainText(g.getFullname()), String.valueOf(g.id)));
         }
 
