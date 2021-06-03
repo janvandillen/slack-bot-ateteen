@@ -6,24 +6,32 @@ import com.slack.api.bolt.request.builtin.ViewSubmissionRequest;
 import com.slack.api.bolt.response.Response;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.model.Conversation;
+import com.slack.api.model.view.View;
 import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
 import nl.jvandillen.slackbotateteen.app.dao.GameDao;
 import nl.jvandillen.slackbotateteen.app.views.Modals;
+import nl.jvandillen.slackbotateteen.controller.BggApiController;
+import nl.jvandillen.slackbotateteen.controller.SettingController;
 import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.Game;
-import nl.jvandillen.slackbotateteen.model.form.ChoseGameForm;
-import nl.jvandillen.slackbotateteen.model.form.CloseGameForm;
-import nl.jvandillen.slackbotateteen.model.form.NewBoardgameForm;
-import nl.jvandillen.slackbotateteen.model.form.NewGameForm;
+import nl.jvandillen.slackbotateteen.model.Setting;
+import nl.jvandillen.slackbotateteen.model.form.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 @Component
 public class Submission {
 
+    @Autowired
+    SlackActions slackActions;
+    @Autowired
+    BggApiController bggApiController;
     @Autowired
     private NewGameForm newGameForm;
     @Autowired
@@ -33,19 +41,40 @@ public class Submission {
     @Autowired
     private ChoseGameForm choseGameForm;
     @Autowired
+    private UpdateBoardgameForm updateBoardgameForm;
+    @Autowired
+    private SimpleModalForm simpleModalForm;
+    @Autowired
     private Modals modals;
     @Autowired
     private BoardgameDao boardgameDao;
     @Autowired
     private GameDao gameDao;
     @Autowired
-    SlackActions slackActions;
+    private SettingController settingController;
 
     public void addSubmissions(App app) {
         app.viewSubmission(newGameForm.callbackID, this::createGameSubmission);
         app.viewSubmission(newBoardgameForm.callbackID, this::createBoardgameSubmission);
         app.viewSubmission(closeGameForm.callbackID, this::closeGameSubmission);
         app.viewSubmission(choseGameForm.callbackID, this::choseGameSubmission);
+        app.viewSubmission(updateBoardgameForm.callbackID, this::updateBoardgameSubmission);
+        app.viewSubmission(simpleModalForm.callbackID, this::simpleModalSubmission);
+    }
+
+    private Response simpleModalSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) {
+        Setting setting = simpleModalForm.getSetting(req);
+        String value = simpleModalForm.getValue(req);
+        if (!settingController.set(setting, value))
+            return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(simpleModalForm.IDInputID, setting.getErrorCode())));
+
+        return ctx.ack();
+    }
+
+    private Response updateBoardgameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) {
+        Boardgame boardgame = updateBoardgameForm.retrieveBoardgame(req);
+        boardgameDao.save(boardgame);
+        return ctx.ack();
     }
 
     private Response choseGameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) {
@@ -54,9 +83,27 @@ public class Submission {
     }
 
     private Response createBoardgameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) {
-        Boardgame boardgame = newBoardgameForm.retrieveGame(req);
-        boardgameDao.save(boardgame);
-        return ctx.ack();
+        int id;
+        try {
+            id = newBoardgameForm.retrieveBggID(req);
+        } catch (NumberFormatException nfe) {
+            return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newBoardgameForm.boardgameInputID, "needs to be an integer")));
+        }
+
+        if (boardgameDao.existsById(id))
+            return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newBoardgameForm.boardgameInputID, "ID already exists")));
+
+        Boardgame boardgame = null;
+        try {
+            boardgame = bggApiController.getBoardgameFromBgg(id);
+            boardgameDao.save(boardgame);
+            View view = modals.updateBoardgameModal(boardgame);
+            return ctx.ack(r -> r.responseAction("update").view(view));
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            boardgameDao.deleteById(id);
+            e.printStackTrace();
+        }
+        return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newBoardgameForm.boardgameInputID, "something went wrong with fetching the ID")));
     }
 
     private Response createGameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) throws SlackApiException, IOException {
@@ -72,11 +119,13 @@ public class Submission {
     }
 
     private Response closeGameSubmission(ViewSubmissionRequest req, ViewSubmissionContext ctx) throws SlackApiException, IOException {
-        Map<String,String> errors = closeGameForm.validate(req);
-        if (!errors.isEmpty()) { return ctx.ack(r -> r.responseAction("errors").errors(errors));}
+        Map<String, String> errors = closeGameForm.validate(req);
+        if (!errors.isEmpty()) {
+            return ctx.ack(r -> r.responseAction("errors").errors(errors));
+        }
         Game game = closeGameForm.retrieveGame(req);
         gameDao.save(game);
-        slackActions.CloseChannel(ctx,game.getChannelID());
+        slackActions.CloseChannel(ctx, game.getChannelID());
         return ctx.ack();
     }
 

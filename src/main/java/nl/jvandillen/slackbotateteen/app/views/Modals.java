@@ -5,13 +5,12 @@ import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.View;
 import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
 import nl.jvandillen.slackbotateteen.app.dao.GameDao;
+import nl.jvandillen.slackbotateteen.controller.SettingController;
 import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.Game;
+import nl.jvandillen.slackbotateteen.model.Setting;
 import nl.jvandillen.slackbotateteen.model.User;
-import nl.jvandillen.slackbotateteen.model.form.ChoseGameForm;
-import nl.jvandillen.slackbotateteen.model.form.CloseGameForm;
-import nl.jvandillen.slackbotateteen.model.form.NewBoardgameForm;
-import nl.jvandillen.slackbotateteen.model.form.NewGameForm;
+import nl.jvandillen.slackbotateteen.model.form.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,12 +19,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.slack.api.model.block.Blocks.*;
-import static com.slack.api.model.block.Blocks.input;
 import static com.slack.api.model.block.composition.BlockCompositions.option;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.*;
 import static com.slack.api.model.view.Views.*;
-import static com.slack.api.model.view.Views.viewClose;
 
 @Component
 public class Modals {
@@ -39,15 +36,21 @@ public class Modals {
     @Autowired
     private ChoseGameForm choseGameForm;
     @Autowired
+    private UpdateBoardgameForm updateBoardgameForm;
+    @Autowired
+    private SimpleModalForm simpleModalForm;
+    @Autowired
     private BoardgameDao boardgameDao;
     @Autowired
     private GameDao gameDao;
+    @Autowired
+    private SettingController settingController;
 
     public View createGameModal() {
 
         List<OptionObject> options = new ArrayList<>();
-        for (Boardgame b:boardgameDao.findAll()) {
-            options.add(option(plainText(b.name),String.valueOf(b.id)));
+        for (Boardgame b : boardgameDao.findAll()) {
+            options.add(option(plainText(b.getName()), String.valueOf(b.getId())));
         }
 
         return view(view -> view
@@ -97,7 +100,7 @@ public class Modals {
                                 .text(plainText(" "))
                                 .accessory(checkboxes(check -> check
                                         .actionId(newGameForm.noChannelInputActionID)
-                                        .options(Collections.singletonList(option(plainText("Skip channel creation"),newGameForm.noChannelInputActionCheckID)))
+                                        .options(Collections.singletonList(option(plainText("Skip channel creation"), newGameForm.noChannelInputActionCheckID)))
                                 ))
                         )
                 ))
@@ -105,22 +108,6 @@ public class Modals {
     }
 
     public View createBoardgameModal() {
-
-        List<OptionObject> amounts = new ArrayList<>();
-        for (int i = 2; i < 21; i++) {
-            amounts.add(option(plainText(String.valueOf(i)),String.valueOf(i)));
-        }
-
-        List<OptionObject> categories = new ArrayList<>();
-        categories.add(option(plainText("18XX"),"18XX"));
-        categories.add(option(plainText("Heavy"),"Heavy"));
-        categories.add(option(plainText("Medium"),"Medium"));
-        categories.add(option(plainText("Low"),"Low"));
-        categories.add(option(plainText("Other"),"Other"));
-
-        List<OptionObject> playable = new ArrayList<>();
-        playable.add(option(plainText("Playable live online"),newBoardgameForm.liveID));
-        playable.add(option(plainText("Playable Asynch"),newBoardgameForm.asynchID));
 
         return view(view -> view
                 .callbackId(newBoardgameForm.callbackID)
@@ -135,54 +122,63 @@ public class Modals {
                         input(input -> input
                                 .blockId(newBoardgameForm.boardgameInputID)
                                 .element(plainTextInput(pti -> pti.actionId(newBoardgameForm.boardgameInputActionID)))
-                                .label(plainText((pt -> pt.text("Game"))))
-                        ),
-                        section(section -> section
-                                .blockId(newBoardgameForm.minPlayerInputID)
-                                .text(plainText("minimum players"))
-                                .accessory(staticSelect(ss -> ss
-                                        .actionId(newBoardgameForm.minPlayerInputActionID)
-                                        .options(amounts)
-                                ))
-                        ),
-                        section(section -> section
-                                .blockId(newBoardgameForm.maxPlayerInputID)
-                                .text(plainText("maximum players"))
-                                .accessory(staticSelect(ss -> ss
-                                        .actionId(newBoardgameForm.maxPlayerInputActionID)
-                                        .options(amounts)
-                                ))
-                        ),
-                        section(section -> section
-                                .blockId(newBoardgameForm.categoryInputID)
-                                .text(plainText("category"))
-                                .accessory(staticSelect(ss -> ss
-                                        .actionId(newBoardgameForm.categoryInputActionID)
-                                        .options(categories)
-                                ))
-                        ),
-                        input(input -> input
-                                .blockId(newBoardgameForm.websiteInputID)
-                                .element(plainTextInput(pti -> pti.actionId(newBoardgameForm.websiteInputActionID)))
-                                .label(plainText((pt -> pt.text("Website"))))
-                        ),
-                        section(input -> input
-                                .blockId(newBoardgameForm.playableInputID)
-                                .text(plainText(" "))
-                                .accessory(checkboxes(check -> check
-                                       .actionId(newBoardgameForm.playableInputActionID)
-                                       .options(playable)
-                                ))
+                                .label(plainText((pt -> pt.text("Boardgame geek ID"))))
                         )
                 ))
         );
     }
 
+    public View updateBoardgameModal(Boardgame boardgame) {
+
+        List<OptionObject> playable = new ArrayList<>();
+        playable.add(option(plainText("Playable live online"), updateBoardgameForm.liveID));
+        playable.add(option(plainText("Playable Asynch"), updateBoardgameForm.asynchID));
+
+        String titleTxt = boardgame.getName();
+        if (titleTxt.length() > 25) {
+            titleTxt = titleTxt.substring(0, 21) + "...";
+        }
+        String finalTitleTxt = titleTxt;
+
+        return view(view -> view
+                .callbackId(updateBoardgameForm.callbackID)
+                .type("modal")
+                .notifyOnClose(true)
+                .title(viewTitle(title -> title.type("plain_text").text(finalTitleTxt).emoji(true)))
+                .submit(viewSubmit(submit -> submit.type("plain_text").text("Submit").emoji(true)))
+                .close(viewClose(close -> close.type("plain_text").text("Cancel").emoji(true)))
+                .blocks(asBlocks())
+                .blocks(asBlocks(
+                        divider(),
+                        input(input -> input
+                                .blockId(updateBoardgameForm.boardgameShortNameInputID)
+                                .element(plainTextInput(pti -> pti.actionId(updateBoardgameForm.boardgameShortNameInputActionID)))
+                                .label(plainText((pt -> pt.text("Abriviation"))))
+                        ),
+                        input(input -> input
+                                .blockId(updateBoardgameForm.websiteInputID)
+                                .element(plainTextInput(pti -> pti.actionId(updateBoardgameForm.websiteInputActionID)))
+                                .label(plainText((pt -> pt.text("Website"))))
+                        ),
+                        section(input -> input
+                                .blockId(updateBoardgameForm.playableInputID)
+                                .text(plainText(" "))
+                                .accessory(checkboxes(check -> check
+                                        .actionId(updateBoardgameForm.playableInputActionID)
+                                        .options(playable)
+                                ))
+                        )
+                ))
+                .privateMetadata(String.valueOf(boardgame.getId()))
+        );
+
+    }
+
     public View choseGameModal() {
 
         List<OptionObject> options = new ArrayList<>();
-        for (Game g:gameDao.findByRunningTrue()) {
-            options.add(option(plainText(g.getFullname()),String.valueOf(g.id)));
+        for (Game g : gameDao.findByRunningTrue()) {
+            options.add(option(plainText(g.getFullname()), String.valueOf(g.id)));
         }
 
         return view(view -> view
@@ -210,11 +206,11 @@ public class Modals {
     public View closeGameModal(Game game) {
 
         List<LayoutBlock> blocks = new ArrayList<>();
-        for (User player: game.getPlayers() ) {
+        for (User player : game.getPlayers()) {
             blocks.add(divider());
             blocks.add(input(input -> input
                     .blockId(closeGameForm.scoreInputID(player))
-                    .label(plainText(player.name))
+                    .label(plainText(player.getName()))
                     .element(plainTextInput(pti -> pti
                             .actionId(closeGameForm.scoreInputActionID(player))
                             .placeholder(plainText("0"))
@@ -225,14 +221,14 @@ public class Modals {
                     .text(plainText(" "))
                     .accessory(checkboxes(check -> check
                             .actionId(closeGameForm.winInputActionID(player))
-                            .options(Collections.singletonList(option(plainText("winner"),closeGameForm.winInputActionCheckID(player))))
+                            .options(Collections.singletonList(option(plainText("winner"), closeGameForm.winInputActionCheckID(player))))
                     ))
             ));
         }
 
         String titleTxt = "Close " + game.getFullname();
         if (titleTxt.length() > 25) {
-            titleTxt = titleTxt.substring(0,21) + "...";
+            titleTxt = titleTxt.substring(0, 21) + "...";
         }
         String finalTitleTxt = titleTxt;
 
@@ -246,6 +242,27 @@ public class Modals {
                 .blocks(asBlocks())
                 .blocks(blocks)
                 .privateMetadata(String.valueOf(game.id))
+        );
+    }
+
+    public View simpleModal(Setting setting ){
+        return view(view -> view
+                .callbackId(simpleModalForm.callbackID)
+                .type("modal")
+                .notifyOnClose(true)
+                .title(viewTitle(title -> title.type("plain_text").text("modify setting").emoji(true)))
+                .submit(viewSubmit(submit -> submit.type("plain_text").text("Submit").emoji(true)))
+                .close(viewClose(close -> close.type("plain_text").text("Cancel").emoji(true)))
+                .blocks(asBlocks())
+                .blocks(asBlocks(
+                        divider(),
+                        input(input -> input
+                                .blockId(simpleModalForm.IDInputID)
+                                .element(plainTextInput(pti -> pti.actionId(simpleModalForm.IDInputActionID)))
+                                .label(plainText((pt -> pt.text(setting.getName()))))
+                        )
+                ))
+                .privateMetadata(settingController.encode(setting))
         );
     }
 }
