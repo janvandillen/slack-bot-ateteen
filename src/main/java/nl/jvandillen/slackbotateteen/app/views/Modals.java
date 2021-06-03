@@ -122,8 +122,10 @@ public class Modals {
                         input(input -> input
                                 .blockId(newBoardgameForm.boardgameInputID)
                                 .element(plainTextInput(pti -> pti.actionId(newBoardgameForm.boardgameInputActionID)))
-                                .label(plainText((pt -> pt.text("Boardgame geek ID"))))
-                        )
+                                .label(plainText((pt -> pt.text("BoardGameGeek item ID"))))
+                        ),
+                        divider(),
+                        section(sectionBlockBuilder -> sectionBlockBuilder.text(plainText("The BGG item id is the number you see in the URL when being on a board game page. With that number the app can retrieve information from the website")))
                 ))
         );
     }
