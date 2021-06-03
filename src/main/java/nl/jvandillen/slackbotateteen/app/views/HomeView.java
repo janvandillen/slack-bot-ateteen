@@ -3,12 +3,11 @@ package nl.jvandillen.slackbotateteen.app.views;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.element.BlockElement;
 import com.slack.api.model.view.View;
+import nl.jvandillen.slackbotateteen.algo.SortBoardgames;
 import nl.jvandillen.slackbotateteen.controller.DatabaseController;
-import nl.jvandillen.slackbotateteen.model.Boardgame;
-import nl.jvandillen.slackbotateteen.model.BoardgameRating;
-import nl.jvandillen.slackbotateteen.model.Game;
-import nl.jvandillen.slackbotateteen.model.User;
+import nl.jvandillen.slackbotateteen.model.*;
 import nl.jvandillen.slackbotateteen.model.form.HomeForm;
+import org.javatuples.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +28,8 @@ public class HomeView {
     private DatabaseController databaseController;
     @Autowired
     private HomeForm homeForm;
+    @Autowired
+    private SortBoardgames sortBoardgames;
 
 
     public View createGamesView() {
@@ -157,7 +158,36 @@ public class HomeView {
         return view(view -> view
                 .type("home")
                 .blocks(blocks)
+        );
+    }
 
+    public View createGameOrganiserView() {
+
+        List<LayoutBlock> blocks = getInitialBlocks();
+
+        blocks.add(header(header -> header.text(plainText("Game organiser"))));
+
+        for (BoardgameCalculatedPlayability bcp : sortBoardgames.sort(databaseController.getAllBoardGame(), databaseController.getAllUsers())) {
+            StringBuilder txt = new StringBuilder();
+            txt.append("*" + bcp.getBoardgame().getName() + "*: " + bcp.getRating() + "\n");
+            for (Pair<User, Float> p : bcp.getPotentialPlayers()) {
+                txt.append(p.getValue0().getName() + ", ");
+            }
+
+            for (Pair<User, Float> p : bcp.getExtraPlayers()) {
+                txt.append("(" + p.getValue0().getName() + "), ");
+            }
+
+            txt.deleteCharAt(txt.length() - 1);
+            txt.deleteCharAt(txt.length() - 1);
+            blocks.add(section(sct -> sct
+                    .text(markdownText(txt.toString()))
+            ));
+        }
+
+        return view(view -> view
+                .type("home")
+                .blocks(blocks)
         );
     }
 
@@ -165,6 +195,7 @@ public class HomeView {
 
         List<BlockElement> possibleTabs = new ArrayList<>();
         possibleTabs.add(button(btn -> btn.text(plainText("Games")).actionId(homeForm.gameTabInputActionID)));
+        possibleTabs.add(button(btn -> btn.text(plainText("Game Organiser")).actionId(homeForm.gameOrganiserTabInputActionID)));
         possibleTabs.add(button(btn -> btn.text(plainText("Settings")).actionId(homeForm.settingsTabInputActionID)));
 
         List<LayoutBlock> blocks = new ArrayList<>();

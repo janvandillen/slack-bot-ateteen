@@ -20,7 +20,7 @@ public class Game {
     Date closed;
     String url;
     @ManyToOne
-    private Boardgame boardgame;
+    Boardgame boardgame;
 
     public Game() {
     }

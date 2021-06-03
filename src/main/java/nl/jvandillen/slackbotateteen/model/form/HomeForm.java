@@ -18,6 +18,7 @@ public class HomeForm {
     public final String modifySettingInputActionID = "modifySettingInputActionID";
     public final String modifyGameRatingInputActionID = "modifyGameRatingInputActionID";
     public final String modifyGameMaxGameInputActionID = "modifyGameMaxGameInputActionID";
+    public final String gameOrganiserTabInputActionID = "gameOrganiserTabInputActionID";
 
     @Autowired
     private DatabaseController databaseController;

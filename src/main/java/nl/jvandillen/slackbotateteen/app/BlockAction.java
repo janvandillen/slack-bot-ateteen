@@ -36,6 +36,7 @@ public class BlockAction {
         app.blockAction(homeForm.gameInputActionID, this::createGame);
         app.blockAction(homeForm.closegameInputActionID, this::closeGame);
         app.blockAction(homeForm.gameTabInputActionID, this::openGameTab);
+        app.blockAction(homeForm.gameOrganiserTabInputActionID, this::openGameOrganiserTab);
         app.blockAction(homeForm.settingsTabInputActionID, this::openSettingsTab);
         app.blockAction(homeForm.modifySettingInputActionID, this::modifySetting);
         app.blockAction(homeForm.modifyGameRatingInputActionID, this::modifySetting);
@@ -56,6 +57,15 @@ public class BlockAction {
 
     private Response openSettingsTab(BlockActionRequest req, ActionContext ctx) throws SlackApiException, IOException {
         View appHomeView = homeView.createSettingsView(userController.getUser(ctx, ctx.getRequestUserId()));
+        ctx.client().viewsPublish(r -> r
+                .userId(ctx.getRequestUserId())
+                .view(appHomeView)
+        );
+        return ctx.ack();
+    }
+
+    private Response openGameOrganiserTab(BlockActionRequest req, ActionContext ctx) throws SlackApiException, IOException {
+        View appHomeView = homeView.createGameOrganiserView();
         ctx.client().viewsPublish(r -> r
                 .userId(ctx.getRequestUserId())
                 .view(appHomeView)

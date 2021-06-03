@@ -64,4 +64,8 @@ public class DatabaseController {
     public Boardgame findBoardgame(int id) {
         return boardgameDao.findById(id).orElseThrow();
     }
+
+    public List<User> getAllUsers() {
+        return userDao.findAll();
+    }
 }

@@ -5,6 +5,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -32,14 +33,13 @@ public class Boardgame {
     public Boardgame() {
     }
 
-    public Boardgame(String name, int maxPlayers, int minPlayers, boolean async, boolean liveOnline, String website, String category) {
+    public Boardgame(String name, int maxPlayers, int minPlayers, boolean async, boolean liveOnline, String website) {
         this.name = name;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
         this.async = async;
         this.liveOnline = liveOnline;
         this.website = website;
-        //this.category = category;
     }
 
     public Boardgame(int id) {
@@ -110,5 +110,26 @@ public class Boardgame {
 
     public Set<BoardgameRating> getRatings() {
         return ratings;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Boardgame boardgame = (Boardgame) o;
+        return id == boardgame.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    public int getMaxPlayers() {
+        return maxPlayers;
+    }
+
+    public int getMinPlayers() {
+        return minPlayers;
     }
 }

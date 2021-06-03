@@ -144,4 +144,34 @@ public class User {
     public int hashCode() {
         return Objects.hash(userID);
     }
+
+    public int gameAmount() {
+        int i = 0;
+        for (GameRegistration gr : registrations) {
+            if (gr.game.running) i++;
+        }
+        return i;
+    }
+
+    public int gameAmount(Boardgame boardgame) {
+        int i = 0;
+        for (GameRegistration gr : registrations) {
+            if (gr.game.running & gr.game.boardgame.equals(boardgame)) i++;
+        }
+        return i;
+    }
+
+    public float getBoardgameRating(Boardgame boardgame) {
+        for (BoardgameRating br : boardgameRatings) {
+            if (br.boardgame.equals(boardgame) & br.ratingFixed) return br.rating;
+        }
+        return defaultRating;
+    }
+
+    public int getMaxSimilarGames(Boardgame boardgame) {
+        for (BoardgameRating br : boardgameRatings) {
+            if (br.boardgame.equals(boardgame) & br.maxGamesFixed) return br.maxGames;
+        }
+        return getDefaultMaxSimilarGames();
+    }
 }
