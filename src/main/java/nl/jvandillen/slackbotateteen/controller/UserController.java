@@ -29,4 +29,8 @@ public class UserController {
             return user;
         }
     }
+
+    public User getUser(Context ctx) throws SlackApiException, IOException {
+        return getUser(ctx,ctx.getRequestUserId());
+    }
 }

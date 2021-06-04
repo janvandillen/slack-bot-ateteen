@@ -44,8 +44,16 @@ public class HomeView {
         blocks.add(divider());
 
         for (Game game : databaseController.getRunningGames()) {
+
+            User owner = game.getOwner();
+            String ownerName = "N/A";
+            if (owner != null) {
+                ownerName = owner.getName();
+            }
+
             String text = "*#" + game.getFullname() + "*\n" +
                     "created: " + game.getFormatedCreationDate() + "\n" +
+                    "owner: " + ownerName + "\n" +
                     "players: " + game.getPlayersName() + "\n" +
                     game.getUrl();
             blocks.add(section(sct -> sct

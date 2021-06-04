@@ -11,6 +11,7 @@ import nl.jvandillen.slackbotateteen.controller.UserController;
 import nl.jvandillen.slackbotateteen.model.Boardgame;
 import nl.jvandillen.slackbotateteen.model.Game;
 import nl.jvandillen.slackbotateteen.model.GameRegistration;
+import nl.jvandillen.slackbotateteen.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,8 +47,9 @@ public class NewGameForm {
         Boardgame boardgame = boardgameDao.findById(Integer.parseInt(stateValues.get(gameInputID).get(gameInputActionID).getSelectedOption().getValue())).orElseThrow();
         String name = stateValues.get(gameNameInputID).get(gameNameInputActionID).getValue().toLowerCase(Locale.ROOT).replace(" ", "_");
         String url = stateValues.get(gameURLInputID).get(gameURLInputActionID).getValue();
+        User owner = userController.getUser(ctx);
 
-        Game game = new Game(boardgame, name, url);
+        Game game = new Game(boardgame, name, url, owner);
         gameDao.save(game);
 
         List<String> playerIDs = stateValues.get(playersInputID).get(playersInputActionID).getSelectedUsers();

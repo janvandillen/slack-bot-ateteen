@@ -3,8 +3,6 @@ package nl.jvandillen.slackbotateteen.app.views;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.View;
-import nl.jvandillen.slackbotateteen.app.dao.BoardgameDao;
-import nl.jvandillen.slackbotateteen.app.dao.GameDao;
 import nl.jvandillen.slackbotateteen.controller.DatabaseController;
 import nl.jvandillen.slackbotateteen.controller.SettingController;
 import nl.jvandillen.slackbotateteen.model.Boardgame;

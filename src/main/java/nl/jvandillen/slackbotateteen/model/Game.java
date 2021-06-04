@@ -21,15 +21,18 @@ public class Game {
     String url;
     @ManyToOne
     Boardgame boardgame;
+    @ManyToOne
+    User owner;
 
     public Game() {
     }
 
-    public Game(Boardgame boardgame, String name, String url) {
+    public Game(Boardgame boardgame, String name, String url, User owner) {
         this.boardgame = boardgame;
         this.name = name;
         this.running = true;
         this.url = url;
+        this.owner = owner;
         setCreationDate();
     }
 
@@ -147,5 +150,9 @@ public class Game {
 
     public void setRegistrations(Set<GameRegistration> registrations) {
         this.registrations = registrations;
+    }
+
+    public User getOwner() {
+        return owner;
     }
 }
