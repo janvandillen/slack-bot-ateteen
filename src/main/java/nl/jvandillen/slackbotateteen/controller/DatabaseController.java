@@ -84,4 +84,10 @@ public class DatabaseController {
     public void deleteBoardgame(int id) {
         boardgameDao.deleteById(id);
     }
+
+    public void delete(Game game) {
+        gameRegistrationDao.deleteAll(game.getRegistrations());
+        game.setRegistrations(null);
+        gameDao.delete(game);
+    }
 }

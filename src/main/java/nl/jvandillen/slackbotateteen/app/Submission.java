@@ -119,6 +119,10 @@ public class Submission {
         databaseController.save(game);
         if (!newGameForm.noChannel(req)) {
             Conversation channel = slackActions.CreateChannel(ctx, game.getFullname());
+            if (channel == null) {
+                databaseController.delete(game);
+                return ctx.ack(r -> r.responseAction("errors").errors(Collections.singletonMap(newGameForm.gameNameInputID, "something went wrong with creating the game. Probably due to a special character in the name")));
+            }
             game.setChannelID(channel.getId());
             slackActions.InviteToChannel(ctx, channel, game.getPlayers());
             databaseController.save(game);
