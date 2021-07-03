@@ -138,6 +138,10 @@ public class HomeView {
                 .text(markdownText("- Value in `( )` are calculated values \n- Ratings go from `0: I never want to play this game` to `7: even if I am at my max games I still want to play it`. \n- if max games is `0` for specific games it means that there is no limit in how often you want to play this game"))
         ));
 
+        blocks.add(section(sct -> sct
+                .text(plainText("all games with a score of " + (int) Math.ceil(user.getEligibility()) + " or higher are eligible to be played at the moment"))
+        ));
+
         for (Boardgame boardgame : databaseController.getAllBoardGame(true)) {
 
             String rating = "(" + user.getDefaultRating() + ")";
@@ -177,7 +181,7 @@ public class HomeView {
 
         for (BoardgameCalculatedPlayability bcp : sortBoardgames.sort(databaseController.getAllBoardGame(), databaseController.getAllUsers())) {
             StringBuilder txt = new StringBuilder();
-            txt.append("*" + bcp.getBoardgame().getName() + "*: " + bcp.getRating() + "\n");
+            txt.append("*" + bcp.getBoardgame().getName() + "*: " + bcp.getEligibility() + "\n");
             for (Pair<User, Float> p : bcp.getPotentialPlayers()) {
                 txt.append(p.getValue0().getName() + ", ");
             }

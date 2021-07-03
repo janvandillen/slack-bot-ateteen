@@ -174,4 +174,19 @@ public class User {
         }
         return getDefaultMaxSimilarGames();
     }
+
+    public float getBoardgameEligibility(Boardgame boardgame){
+        if (gameAmount(boardgame) >= getMaxSimilarGames(boardgame)) return 0;
+        float rating = getBoardgameRating(boardgame);
+        if (rating >= 7) return 7;
+        return rating - getEligibility();
+    }
+
+    public float getEligibility(){
+        int amount = gameAmount();
+        if (amount < minGames) return 0;
+        if (amount >= maxGames) return 7;
+        return (7 * ((float) (gameAmount()-minGames+1)/(maxGames-minGames+1)));
+
+    }
 }

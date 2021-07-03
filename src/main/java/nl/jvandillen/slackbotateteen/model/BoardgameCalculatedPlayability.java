@@ -9,7 +9,7 @@ public class BoardgameCalculatedPlayability {
     Boardgame boardgame;
     List<Pair<User, Float>> potentialPlayers;
     List<Pair<User, Float>> extraPlayers;
-    float rating;
+    float eligibility;
 
     public BoardgameCalculatedPlayability(Boardgame boardgame, List<Pair<User, Float>> userRating) {
         this.boardgame = boardgame;
@@ -24,7 +24,11 @@ public class BoardgameCalculatedPlayability {
         potentialPlayers = userRating.subList(0, boardgame.getMinPlayers());
         extraPlayers = userRating.subList(boardgame.getMinPlayers(), Math.min(boardgame.getMaxPlayers(),userRating.size()));
 
-        rating = potentialPlayers.get(potentialPlayers.size()-1).getValue1();
+        eligibility = 0;
+        for (Pair<User,Float> ur: userRating) {
+            eligibility += ur.getValue1();
+        }
+        eligibility = eligibility/userRating.size();
 
     }
 
@@ -40,7 +44,7 @@ public class BoardgameCalculatedPlayability {
         return extraPlayers;
     }
 
-    public float getRating() {
-        return rating;
+    public float getEligibility() {
+        return eligibility;
     }
 }
